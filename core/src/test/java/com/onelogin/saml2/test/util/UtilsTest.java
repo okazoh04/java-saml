@@ -7,13 +7,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,9 +44,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.signature.XMLSignatureException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -61,9 +60,6 @@ import com.onelogin.saml2.util.Util;
  * Tests the com.onelogin.saml2.util.Util class
  */
 public class UtilsTest {
-
-	@Rule
-	public ExpectedException expectedEx = ExpectedException.none();
 
 	/**
 	 * Tests the loadXML method for XXE/XEE attacks
@@ -372,12 +368,14 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#convertStringToDocument
 	 */
-	@Test(expected=SAXException.class)
+	@Test
 	public void testConvertStringToDocumentBad() throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
-		String metadataValid = Util.getFileAsString("data/metadata/metadata_settings1.xml");
-		String metadataInvalid = metadataValid.replace("/md:EntityDescriptor", "/md:EntityDescriptor2");
-		Document metadataDom = Util.convertStringToDocument(metadataInvalid);
-		assertNull(metadataDom);
+		assertThrows(SAXException.class, () -> {
+			String metadataValid = Util.getFileAsString("data/metadata/metadata_settings1.xml");
+			String metadataInvalid = metadataValid.replace("/md:EntityDescriptor", "/md:EntityDescriptor2");
+			Document metadataDom = Util.convertStringToDocument(metadataInvalid);
+			assertNull(metadataDom);
+		});
 	}
 
 	/**
@@ -613,13 +611,15 @@ public class UtilsTest {
 	 * @see com.onelogin.saml2.util.Util#loadPrivateKey
 	 */
 	
-	@Test(expected=InvalidKeySpecException.class)
+	@Test
 	public void testLoadPrivateKeyPKCS1() throws URISyntaxException, GeneralSecurityException, IOException {
 		String key = Util.getFileAsString("data/customPath/certs/sp.key");
-		
-		// PKCS1 format not supported 
-		PrivateKey keyObject1 = Util.loadPrivateKey(key);
-		assertNull(keyObject1);
+
+		assertThrows(InvalidKeySpecException.class, () -> {
+			// PKCS1 format not supported 
+			PrivateKey keyObject1 = Util.loadPrivateKey(key);
+			assertNull(keyObject1);
+		});
 	}
 
 	/**
@@ -632,10 +632,16 @@ public class UtilsTest {
 	@Test
 	public void testGetNameIdDataWrongKey() throws Exception {
 		String keyString = Util.getFileAsString("data/misc/sp3.key");
-		
-		expectedEx.expect(Exception.class);
-		expectedEx.expectMessage("algid parse error, not a sequence");
-		Util.loadPrivateKey(keyString);
+
+		Exception exception = assertThrows(Exception.class, () -> Util.loadPrivateKey(keyString));
+		boolean found = false;
+		for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
+			if (cause.getMessage() != null && cause.getMessage().contains("algid parse error, not a sequence")) {
+				found = true;
+				break;
+			}
+		}
+		assertTrue(found);
 	}
 	
 	/**
@@ -778,11 +784,13 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#getFileAsString
 	 */
-	@Test(expected=FileNotFoundException.class)
+	@Test
 	public void testLoadResourceFail() throws IOException {
-		String string = Util.getFileAsString("invalid_path");
-		assertNull(string);
-	}	
+		assertThrows(FileNotFoundException.class, () -> {
+			String string = Util.getFileAsString("invalid_path");
+			assertNull(string);
+		});
+	}
 	
 	/**
 	 * Tests the base64decodedInflated method
@@ -1487,15 +1495,17 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#addSign
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testAddSignDocNull() throws URISyntaxException, IOException, GeneralSecurityException, ParserConfigurationException, XPathExpressionException, XMLSecurityException {
-		String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
-		X509Certificate cert = Util.loadCert(certString);
-		String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
-		PrivateKey key = Util.loadPrivateKey(keyString);
-		String signAlgorithmSha1 = Constants.RSA_SHA1;
-		
-		String docSigned = Util.addSign(null, key, cert, signAlgorithmSha1);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
+			X509Certificate cert = Util.loadCert(certString);
+			String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
+			PrivateKey key = Util.loadPrivateKey(keyString);
+			String signAlgorithmSha1 = Constants.RSA_SHA1;
+
+			String docSigned = Util.addSign(null, key, cert, signAlgorithmSha1);
+		});
 	}
 
 	/**
@@ -1511,19 +1521,21 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#addSign
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testAddSignDocEmpty() throws URISyntaxException, IOException, GeneralSecurityException, ParserConfigurationException, XPathExpressionException, XMLSecurityException {
-		String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
-		X509Certificate cert = Util.loadCert(certString);
-		String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
-		PrivateKey key = Util.loadPrivateKey(keyString);
-		String signAlgorithmSha1 = Constants.RSA_SHA1;
-		
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = dbf.newDocumentBuilder();
-		Document emptyDoc = builder.newDocument();
-		assertNull(emptyDoc.getDocumentElement());
-		String docSigned = Util.addSign(emptyDoc, key, cert, signAlgorithmSha1);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
+			X509Certificate cert = Util.loadCert(certString);
+			String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
+			PrivateKey key = Util.loadPrivateKey(keyString);
+			String signAlgorithmSha1 = Constants.RSA_SHA1;
+
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = dbf.newDocumentBuilder();
+			Document emptyDoc = builder.newDocument();
+			assertNull(emptyDoc.getDocumentElement());
+			String docSigned = Util.addSign(emptyDoc, key, cert, signAlgorithmSha1);
+		});
 	}
 	
 	/**
@@ -1539,17 +1551,19 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#addSign
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testAddSignNodeNull() throws URISyntaxException, IOException, GeneralSecurityException, ParserConfigurationException, XPathExpressionException, XMLSecurityException {
-		String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
-		X509Certificate cert = Util.loadCert(certString);
-		String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
-		PrivateKey key = Util.loadPrivateKey(keyString);
-		String signAlgorithmSha1 = Constants.RSA_SHA1;
-		Node node = null;
-		
-		String docSigned = Util.addSign(node, key, cert, signAlgorithmSha1);
-	}	
+		assertThrows(IllegalArgumentException.class, () -> {
+			String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
+			X509Certificate cert = Util.loadCert(certString);
+			String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
+			PrivateKey key = Util.loadPrivateKey(keyString);
+			String signAlgorithmSha1 = Constants.RSA_SHA1;
+			Node node = null;
+
+			String docSigned = Util.addSign(node, key, cert, signAlgorithmSha1);
+		});
+	}
 	
 	/**
 	 * Tests the addSign method
@@ -1564,15 +1578,17 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#addSign
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testAddSignKeyNull() throws URISyntaxException, IOException, GeneralSecurityException, ParserConfigurationException, XPathExpressionException, XMLSecurityException {
-		String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
-		X509Certificate cert = Util.loadCert(certString);
-		String signAlgorithmSha1 = Constants.RSA_SHA1;
-		String authNRequest = Util.getFileAsString("data/requests/authn_request.xml");
-		Document authNRequestDoc = Util.loadXML(authNRequest);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
+			X509Certificate cert = Util.loadCert(certString);
+			String signAlgorithmSha1 = Constants.RSA_SHA1;
+			String authNRequest = Util.getFileAsString("data/requests/authn_request.xml");
+			Document authNRequestDoc = Util.loadXML(authNRequest);
 
-		String authNRequestSigned = Util.addSign(authNRequestDoc, null, cert, signAlgorithmSha1);
+			String authNRequestSigned = Util.addSign(authNRequestDoc, null, cert, signAlgorithmSha1);
+		});
 	}
 
 	/**
@@ -1588,16 +1604,18 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#addSign
 	 */
-	@Test(expected=XMLSignatureException.class)
+	@Test
 	public void testAddSignInvalidSigAlg() throws URISyntaxException, IOException, GeneralSecurityException, ParserConfigurationException, XPathExpressionException, XMLSecurityException {
-		String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
-		PrivateKey key = Util.loadPrivateKey(keyString);
-		String authNRequest = Util.getFileAsString("data/requests/authn_request.xml");
-		String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
-		X509Certificate cert = Util.loadCert(certString);
-		Document authNRequestDoc = Util.loadXML(authNRequest);
+		assertThrows(XMLSignatureException.class, () -> {
+			String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
+			PrivateKey key = Util.loadPrivateKey(keyString);
+			String authNRequest = Util.getFileAsString("data/requests/authn_request.xml");
+			String certString = Util.getFileAsString("data/customPath/certs/sp.crt");
+			X509Certificate cert = Util.loadCert(certString);
+			Document authNRequestDoc = Util.loadXML(authNRequest);
 
-		String authNRequestSigned = Util.addSign(authNRequestDoc, key, cert, "invalid_signAlgorithm");
+			String authNRequestSigned = Util.addSign(authNRequestDoc, key, cert, "invalid_signAlgorithm");
+		});
 	}
 	
 	
@@ -1614,15 +1632,17 @@ public class UtilsTest {
 	 *
 	 * @see com.onelogin.saml2.util.Util#addSign
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testAddSignCertNull() throws URISyntaxException, IOException, GeneralSecurityException, ParserConfigurationException, XPathExpressionException, XMLSecurityException {
-		String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
-		PrivateKey key = Util.loadPrivateKey(keyString);
-		String signAlgorithmSha1 = Constants.RSA_SHA1;
-		String authNRequest = Util.getFileAsString("data/requests/authn_request.xml");
-		Document authNRequestDoc = Util.loadXML(authNRequest);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String keyString = Util.getFileAsString("data/customPath/certs/sp.pem");
+			PrivateKey key = Util.loadPrivateKey(keyString);
+			String signAlgorithmSha1 = Constants.RSA_SHA1;
+			String authNRequest = Util.getFileAsString("data/requests/authn_request.xml");
+			Document authNRequestDoc = Util.loadXML(authNRequest);
 
-		String authNRequestSigned = Util.addSign(authNRequestDoc, key, null, signAlgorithmSha1);
+			String authNRequestSigned = Util.addSign(authNRequestDoc, key, null, signAlgorithmSha1);
+		});
 	}
 
 	/**
@@ -1949,10 +1969,12 @@ public class UtilsTest {
 	 * 
 	 * @see com.onelogin.saml2.util.Util#parseDuration
 	 */
-	@Test(expected=DateTimeParseException.class)
+	@Test
 	public void testParseDurationException() throws Exception {
-		long timestamp = 1393876825L;// 2014-03-03 21:00:25
-		long parsedDuration = Util.parseDuration("aaa", timestamp);
+		assertThrows(DateTimeParseException.class, () -> {
+			long timestamp = 1393876825L;// 2014-03-03 21:00:25
+			long parsedDuration = Util.parseDuration("aaa", timestamp);
+		});
 	}
 	
 	/**

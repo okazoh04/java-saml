@@ -3,11 +3,11 @@ package com.onelogin.saml2.test.settings;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -23,7 +23,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.apache.xml.security.exceptions.XMLSecurityException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.onelogin.saml2.settings.Saml2Settings;
 import com.onelogin.saml2.settings.SettingsBuilder;
@@ -722,8 +722,8 @@ public class MetadataTest {
 		Document metadataSignedDoc = Util.loadXML(metadataString);
 		Node validUntilNode = metadataSignedDoc.getFirstChild().getAttributes().getNamedItem("validUntil");
 		Node cacheDurationNode = metadataSignedDoc.getFirstChild().getAttributes().getNamedItem("cacheDuration");
-		assertEquals("should set valid until attribute", Util.formatDateTime(validUntil.getTimeInMillis()), validUntilNode.getTextContent());
-		assertEquals("should set cache duration attribute", "PT123S", cacheDurationNode.getTextContent());
+		assertEquals(Util.formatDateTime(validUntil.getTimeInMillis()), validUntilNode.getTextContent(), "should set valid until attribute");
+		assertEquals("PT123S", cacheDurationNode.getTextContent(), "should set cache duration attribute");
 
 	}
 
@@ -742,8 +742,8 @@ public class MetadataTest {
 		Document metadataSignedDoc = Util.loadXML(metadataString);
 		Node validUntilNode = metadataSignedDoc.getFirstChild().getAttributes().getNamedItem("validUntil");
 		Node cacheDurationNode = metadataSignedDoc.getFirstChild().getAttributes().getNamedItem("cacheDuration");
-		assertNull("should not set valid until attribute", validUntilNode);
-		assertEquals("should set cache duration attribute", "PT123S", cacheDurationNode.getTextContent());
+		assertNull(validUntilNode, "should not set valid until attribute");
+		assertEquals("PT123S", cacheDurationNode.getTextContent(), "should set cache duration attribute");
 	}
 
 	@Test
@@ -761,8 +761,8 @@ public class MetadataTest {
 		Document metadataSignedDoc = Util.loadXML(metadataString);
 		Node validUntilNode = metadataSignedDoc.getFirstChild().getAttributes().getNamedItem("validUntil");
 		Node cacheDurationNode = metadataSignedDoc.getFirstChild().getAttributes().getNamedItem("cacheDuration");
-		assertEquals("should set valid until attribute", Util.formatDateTime(validUntil.getTimeInMillis()), validUntilNode.getTextContent());
-		assertNull("should not set cache duration attribute", cacheDurationNode);
+		assertEquals(Util.formatDateTime(validUntil.getTimeInMillis()), validUntilNode.getTextContent(), "should set valid until attribute");
+		assertNull(cacheDurationNode, "should not set cache duration attribute");
 
 	}
 	

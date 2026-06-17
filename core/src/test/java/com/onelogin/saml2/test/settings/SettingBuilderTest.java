@@ -1,11 +1,12 @@
 package com.onelogin.saml2.test.settings;
 
 import static com.onelogin.saml2.settings.SettingsBuilder.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,9 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import com.onelogin.saml2.exception.Error;
 import com.onelogin.saml2.exception.SettingsException;
@@ -46,9 +45,6 @@ import com.onelogin.saml2.util.Util;
  */
 public class SettingBuilderTest {
 
-	@Rule
-	public ExpectedException expectedEx = ExpectedException.none();
-
 	/**
 	 * Tests SettingsBuilder fromFile method
 	 * Case: config file not found
@@ -60,10 +56,8 @@ public class SettingBuilderTest {
 	 */
 	@Test
 	public void testLoadFromFileNotExist() throws IOException, Error {
-		expectedEx.expect(Error.class);
-		expectedEx.expectMessage("properties file 'config/config.notfound.properties' not found in the classpath");
-
-		new SettingsBuilder().fromFile("config/config.notfound.properties").build();
+		Error exception = assertThrows(Error.class, () -> new SettingsBuilder().fromFile("config/config.notfound.properties").build());
+		assertTrue(exception.getMessage().contains("properties file 'config/config.notfound.properties' not found in the classpath"));
 	}
 
     /**

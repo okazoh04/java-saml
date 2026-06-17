@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.onelogin</groupId>
 	<artifactId>java-saml-toolkit</artifactId>
-	<version>2.9.1-SNAPSHOT</version>
+	<version>2.10.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>java-saml Toolkit Project</name>
@@ -12,10 +12,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
-		<slf4jVersion>1.7.36</slf4jVersion>
-		<junitVersion>4.13.2</junitVersion>
-		<logbackVersion>1.2.12</logbackVersion>
-		<apacheCommonsLangVersion>3.13.0</apacheCommonsLangVersion>
+		<slf4jVersion>2.0.18</slf4jVersion>
+		<junitVersion>6.1.0</junitVersion>
+		<logbackVersion>1.5.18</logbackVersion>
+		<apacheCommonsLangVersion>3.20.0</apacheCommonsLangVersion>
 	</properties>
 
 	<modules>
@@ -28,27 +28,27 @@
 		<dependencies>
 			<!-- for test -->
 			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter</artifactId>
 				<version>${junitVersion}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>3.12.4</version>
+				<version>5.23.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hamcrest</groupId>
 				<artifactId>hamcrest-core</artifactId>
-				<version>2.2</version>
+				<version>3.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hamcrest</groupId>
 				<artifactId>hamcrest-library</artifactId>
-				<version>2.2</version>
+				<version>3.0</version>
 				<scope>test</scope>
 			</dependency>
 			<!-- for log -->
@@ -71,7 +71,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.6.3</version>
 				<executions>
 					<execution>
 						<id>enforce-versions</id>
@@ -85,8 +85,8 @@
 									<version>3.2.5</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<!-- enforce =1.8 so that we compile against the right JRE -->
-									<version>[1.8,)</version>
+									<!-- enforce =21 so that we compile against the right JRE -->
+									<version>[21,)</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>
@@ -96,7 +96,7 @@
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
-				<version>8.4.0</version>
+				<version>12.2.2</version>
 				<configuration>
 					<failBuildOnCVSS>7</failBuildOnCVSS>
 					<suppressionFiles>
@@ -116,17 +116,17 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.15.0</version>
 					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
+						<release>21</release>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
+					<version>3.3.1</version>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<useReleaseProfile>false</useReleaseProfile>
@@ -184,7 +184,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.2.1</version>
+						<version>3.4.0</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>
@@ -197,7 +197,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.3.1</version>
+						<version>3.12.0</version>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -213,7 +213,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>3.0.1</version>
+						<version>3.2.8</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
